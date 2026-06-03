@@ -128,7 +128,7 @@ impl Processor {
                 }
                 obs.push(rank_found);
             }
-            obs.push(hand_count);//対戦相手の残り手札枚数[NUM_PLAYERS](ここでは4)
+            obs.push(hand_count/14.0);//対戦相手の残り手札枚数[NUM_PLAYERS](ここでは4)
             obs.push(norm_act_log)//1手分の履歴(相手の行動をみるため)[4]
 
         }
@@ -137,8 +137,10 @@ impl Processor {
             obs.push(if ((used_card >> card) & 1) == 1 { 1.0 } else { 0.0 });
         }
 
-        //革命フラグ[1]
+        //Jバックのフラグ[1]
         obs.push(if state.is_revolution{1.0}else{0.0});
+        //革命フラグ[1]
+        obs.push(if state.is_parmanent_revolution{1.0}else{0.0});
 
         //現在のfield_action_id[1](改善の余地あり)
         if let Some(act) = state.current_field_action {

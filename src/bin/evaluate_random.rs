@@ -3,6 +3,7 @@ use std::path::Path;
 use president::env::{DaifugoEnv};
 use president::agent::{DQNAgent,RandomAgent,Opponent};
 use president::trainer::Trainer;
+use president::rule::RuleConfig;
 
 fn main(){
     let save_dir ="checkpoints".to_string();
@@ -20,10 +21,15 @@ fn main(){
     let tau = 1.0;
     let save_interval = 3000;
     let num_episodes = 10000;
-    let agent_name = "dqn_v1.0.2".to_string();
+    let agent_name = "dqn_v1.1.0_8J".to_string();
+
+    let rule = RuleConfig {
+        eight_cut:true,
+        eleven_back:true,
+    };
 
     let opponent = Opponent::Random(RandomAgent::new());
-    let mut env = DaifugoEnv::new(0,opponent);
+    let mut env = DaifugoEnv::new(0,opponent,rule);
     let mut agent = DQNAgent::new(100_000,3);
     let mut trainer = Trainer::new(
         eta_max,
@@ -37,7 +43,7 @@ fn main(){
         agent_name,
     );
 
-    agent.load("checkpoints/dqn_v1.0.2_daifugo_ep100000.safetensors").expect("Failed to load model.check the path!");
+    agent.load("checkpoints/dqn_v1.1.0_8J_ep100000.safetensors").expect("Failed to load model.check the path!");
     agent.epsilon = 0.0;
 
     trainer.vs_random(&mut agent,&mut env,num_episodes).unwrap();

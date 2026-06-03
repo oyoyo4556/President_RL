@@ -3,6 +3,7 @@ use president::agent::{DQNAgent, Opponent,Agent};
 use president::common::{NUM_PLAYERS, TRAIN_AGENT_ID};
 use std::fs;
 use std::path::Path;
+use president::rule::RuleConfig;
 
 
 fn main() {
@@ -20,7 +21,7 @@ fn main() {
     // 1. エージェントと対戦相手（Opponent）の初期化
     let agent_id = TRAIN_AGENT_ID; 
     let mut agent = DQNAgent::new(100,1);
-    agent.load("checkpoints/dqn_v1.0.2_daifugo_ep100000.safetensors").expect("Failed to load model.check the path!");
+    agent.load("checkpoints/dqn_v1.1.0_8J_ep100000.safetensors").expect("Failed to load model.check the path!");
     agent.epsilon = 0.0;
     
     let mut opp = DQNAgent::new(100,1);
@@ -28,7 +29,11 @@ fn main() {
     opp.epsilon = 0.0;
 
     let opponent = Opponent::DQN(opp);
-    let mut env = DaifugoEnv::new(agent_id, opponent);
+    let rule = RuleConfig {
+        eight_cut:true,
+        eleven_back:true,
+    };
+    let mut env = DaifugoEnv::new(agent_id, opponent, rule);
     
     // 前回の順位がないと交換フェーズが走らないため、テスト用に前回の順位をモック
     // 0:大富豪, 1:富豪, 2:貧民, 3:大貧民 と仮定

@@ -3,6 +3,7 @@ use crate::action::{ ActionManager, ActionType};
 use rand::seq::SliceRandom;
 use crate::card::Card;
 use crate::common::{JOKER_SINGLE_ACTION_ID, PASS_ACTION_ID, JOKER_PAIR_ACTION_ID,NUM_PLAYERS};
+use crate::rule::{RuleConfig,RuleEvaluator,HandEffects};
 
 #[derive(Debug,Clone)]
 pub struct RawState {
@@ -14,11 +15,13 @@ pub struct RawState {
     pub action_log:[u16;NUM_PLAYERS],
     pub legal_actions_mask:[bool;462],
     pub is_revolution:bool,
+    pub is_parmanent_revolution:bool,
     pub field_owner:Option<usize>,
     pub passed_players:u8,
     pub previous_rankings:Vec<u8>,
     pub exchange_phase:bool,
 }
+
 
 #[derive(Debug,Clone)]
 pub struct ExchangeBuffer {
@@ -34,10 +37,11 @@ pub struct DaifugoEnv {
     pub state:RawState,
     pub exchange_buffer:Vec<ExchangeBuffer>,
     pub exchange_turn_idx:u8,
+    pub evaluator:RuleEvaluator,
 }
 
 impl DaifugoEnv {
-    pub fn new(agent_id:usize,opponent:Opponent) -> Self {
+    pub fn new(agent_id:usize,opponent:Opponent,rule:RuleConfig) -> Self {
 
         Self {
             agent_id,
@@ -52,6 +56,7 @@ impl DaifugoEnv {
                 action_log:[0;NUM_PLAYERS],
                 legal_actions_mask:[false;462],
                 is_revolution:false,
+                is_parmanent_revolution:false,
                 field_owner:None,
                 passed_players:0,
                 previous_rankings:Vec::new(),
@@ -59,6 +64,7 @@ impl DaifugoEnv {
             },
             exchange_buffer:Vec::new(),
             exchange_turn_idx:0,
+            evaluator:RuleEvaluator::new(rule),
         }
     }
 
@@ -72,6 +78,7 @@ impl DaifugoEnv {
         self.state.action_log = [0;NUM_PLAYERS];
         self.state.legal_actions_mask = [false;462];
         self.state.is_revolution = false;
+        self.state.is_parmanent_revolution = false;
         self.state.field_owner = None;
         self.state.passed_players = 0;
         self.exchange_buffer.clear();
@@ -264,9 +271,11 @@ impl DaifugoEnv {
             panic!("illegal action");
         }
 
+        let effects = self.evaluator.evaluate_effects(action as usize, &self.action_manager);
+
         self.apply_action(player,action);
 
-        self.update_field(action);
+        self.update_field(action, &effects);
 
         self.update_finish(player);
 
@@ -280,7 +289,7 @@ impl DaifugoEnv {
             return (final_state,reward,true);
         }
 
-        self.advance_player();
+        self.resolve_next_turn(&effects,player);
 
         self.update_legal_actions();
 
@@ -347,12 +356,9 @@ pub fn apply_action(&mut self, player: usize, action: u16) {
     self.state.hands[player] = hand;
     self.state.action_log[player] = action;
 
-    if info.is_revolution_trigger {
-        self.state.is_revolution = !self.state.is_revolution;
-    }
 }
 
-    fn update_field(&mut self,action:u16) {
+    fn update_field(&mut self,action:u16,effects:&HandEffects) {
 
         // 💡 完全に原因をあぶり出すためのデバッグログ
         //if action == PASS_ACTION_ID as u16 {
@@ -387,6 +393,7 @@ pub fn apply_action(&mut self, player: usize, action: u16) {
                 self.state.current_field_action = None;
                 self.state.field_owner = None;
                 self.state.passed_players = 0;
+                self.state.is_revolution = self.state.is_parmanent_revolution;//場が流れたらJバックを戻す
             }
             return;
         }
@@ -398,6 +405,27 @@ pub fn apply_action(&mut self, player: usize, action: u16) {
             Some(self.state.current_player);
 
         self.state.passed_players = 0;
+
+        let info = &self.action_manager.infos[action as usize];
+        //4枚出しの革命->Jバック革命->8切りの順で処理しないと革命が正しく更新されません
+        //4枚だしの革命の処理
+        if info.is_revolution_trigger {
+            self.state.is_parmanent_revolution  = !self.state.is_parmanent_revolution;
+            self.state.is_revolution = self.state.is_parmanent_revolution;
+        }
+
+        //Jバックの処理
+        if effects.eleven_back {
+            self.state.is_revolution = !self.state.is_revolution;
+        }
+        //8切りの処理
+        if effects.eight_cut {
+            self.state.current_field_action = None;
+            self.state.field_owner = None;
+            self.state.passed_players = 0;
+            self.state.is_revolution = self.state.is_parmanent_revolution;//場が流れたらJバックを戻す
+            return;
+        }
 
     }
 
@@ -435,6 +463,16 @@ pub fn apply_action(&mut self, player: usize, action: u16) {
         }
 
         panic!("No alive players");
+    }
+
+    pub fn resolve_next_turn(&mut self,effects:&HandEffects,current_player:usize) {
+        let player_cleared = ((self.state.alive_players >> current_player) & 1) == 0;
+
+        if effects.eight_cut && !player_cleared {
+            return;
+        }
+
+        self.advance_player();
     }
 
     fn update_legal_actions(&mut self) {
@@ -557,11 +595,12 @@ pub fn apply_action(&mut self, player: usize, action: u16) {
         let player = self.state.current_player;
 
         let action = self.opponent.select_action(&self.state,player)?;
+        let effects = self.evaluator.evaluate_effects(action as usize, &self.action_manager);
 
         self.apply_action(player, action);
-        self.update_field(action);
+        self.update_field(action, &effects);
         self.update_finish(player);
-        self.advance_player();
+        self.resolve_next_turn(&effects, player);
         self.update_legal_actions();
 
         Ok(())

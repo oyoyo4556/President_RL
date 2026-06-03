@@ -2,7 +2,7 @@
 use crate::common::{ACTION_SIZE,PASS_ACTION_ID,JOKER_SINGLE_ACTION_ID,JOKER_PAIR_ACTION_ID};
 use crate::card::Card;
 
-const INVALID_CARD:u8 = 255;
+pub const INVALID_CARD:u8 = 255;
 
 #[derive(Debug,Clone,Copy,PartialEq,Eq)]
 pub enum ActionType {

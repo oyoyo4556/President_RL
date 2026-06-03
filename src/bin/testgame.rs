@@ -1,6 +1,7 @@
 use president::env::DaifugoEnv;
 use president::agent::{Agent, Opponent, RandomAgent};
 use president::card::{Card,Rank,Suit};
+use president::rule::RuleConfig;
 
 fn card_to_string(card:u8) -> String {
 
@@ -89,10 +90,16 @@ fn main() {
             RandomAgent::new()
         );
 
+    let rule = RuleConfig {
+        eight_cut:true,
+        eleven_back:true,
+    };
+
     let mut env =
         DaifugoEnv::new(
             0,
             opponent,
+            rule,
         );
 
     let agent = RandomAgent::new();

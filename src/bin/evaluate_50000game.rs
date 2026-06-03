@@ -1,7 +1,13 @@
 use president::env::DaifugoEnv;
 use president::agent::{Agent, Opponent, RandomAgent};
+use president::rule::RuleConfig;
 
 fn main() {
+
+    let rule = RuleConfig {
+        eight_cut:true,
+        eleven_back:true,
+    };
 
     let opponent =
         Opponent::Random(
@@ -12,6 +18,7 @@ fn main() {
         DaifugoEnv::new(
             0,
             opponent,
+            rule,
         );
 
     let agent = RandomAgent::new();
@@ -26,7 +33,7 @@ fn main() {
     println!("Starting evaluation vs RandomAgent for 50000 episodes");
     println!("=============================================================");
 
-    for episode in 0..=num_episodes {
+    for episode in 1..=num_episodes {
     
         let mut state =
         env.reset();
