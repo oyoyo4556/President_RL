@@ -3,7 +3,7 @@
 
 A 100% pure Rust implementation of a Daifugo (Japanese card game) environment and Deep Q-Network (DQN) training framework. 
 
-大富豪のAI開発に興味があるすべての開発者のために作られた、**高速・ハッカブル・拡張性重視の実験用サンドボックス（ベースフレームワーク）**です。ゲームロジック（Env）、特徴量抽出（Processor）、ニューラルネットワークの構築・学習（Train）まで、Pythonを一切挟まずにRustのみで完結しています。
+大富豪のAI開発のための、**高速・ハッカブル・拡張性重視の実験用サンドボックス（ベースフレームワーク）**です。ゲームロジック（Env）、特徴量抽出（Processor）、ニューラルネットワークの構築・学習（Train）まで、Pythonを一切挟まずにRustのみで完結しています。
 
 ## ⚡ Key Benchmarks (圧倒的なパフォーマンス)
 
