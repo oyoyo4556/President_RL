@@ -260,3 +260,16 @@ let q = advantage_centered.broadcast_add(&v)?;
    # 学習の実行
    cargo run --release --bin train
 
+---
+
+## 学習結果例
+
+ランダム相手に余裕で勝ち越せています。
+
+<img src="pngfolder/daifugo_dqn_v.1.0.2.png" width="400">
+
+>図:革命あり/階段あり/8切り等なし
+
+
+
+
