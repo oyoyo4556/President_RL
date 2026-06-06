@@ -21,11 +21,12 @@ fn main(){
     let tau = 1.0;
     let save_interval = 3000;
     let num_episodes = 10000;
-    let agent_name = "dqn_v1.1.0_8J".to_string();
+    let agent_name = "dqn_v1.1.0_8J3".to_string();
 
     let rule = RuleConfig {
         eight_cut:true,
         eleven_back:true,
+        spade_3_beat:true,
     };
 
     let opponent = Opponent::Random(RandomAgent::new());
@@ -43,7 +44,7 @@ fn main(){
         agent_name,
     );
 
-    agent.load("checkpoints/dqn_v1.1.0_8J_ep100000.safetensors").expect("Failed to load model.check the path!");
+    agent.load("checkpoints/dqn_v1.1.0_8J3_ep100000.safetensors").expect("Failed to load model.check the path!");
     agent.epsilon = 0.0;
 
     trainer.vs_random(&mut agent,&mut env,num_episodes).unwrap();

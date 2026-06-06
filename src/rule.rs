@@ -4,6 +4,7 @@ use crate::action::{ActionManager,ActionType,INVALID_CARD};
 pub struct RuleConfig {
     pub eight_cut:bool,//8切り
     pub eleven_back:bool,//Jバック
+    pub spade_3_beat:bool,//スぺ3返し
 }
 
 #[derive(Debug,Clone,Default)]

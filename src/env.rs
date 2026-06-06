@@ -526,6 +526,12 @@ pub fn apply_action(&mut self, player: usize, action: u16) {
                 continue;
             }
 
+            if self.evaluator.config.spade_3_beat && info.required_mask == 1u64 << 0 {
+                if (hand & (1u64 << 0)) == 0 {
+                    continue;
+                }
+            }
+
             let missing =
                 info.required_mask & !hand;
 
@@ -570,6 +576,15 @@ pub fn apply_action(&mut self, player: usize, action: u16) {
             return false;
         }
 
+        //♠3返し
+        //先にこっちを判定することでjokerにjokerで返せるバグを防いでいる
+        if field.id == JOKER_SINGLE_ACTION_ID {
+            if self.evaluator.config.spade_3_beat && action.required_mask == 1u64  << 0{
+                return true;
+            }
+            return false;
+        }
+
         //革命時でもジョーカーは最強
         if action.id == JOKER_SINGLE_ACTION_ID {
             return true;
@@ -577,11 +592,6 @@ pub fn apply_action(&mut self, player: usize, action: u16) {
 
         if action.id == JOKER_PAIR_ACTION_ID {
             return true;
-        }
-
-        //♠3返し実装時はここを変える
-        if field.id == JOKER_SINGLE_ACTION_ID {
-            return false;
         }
 
         if !self.state.is_revolution {

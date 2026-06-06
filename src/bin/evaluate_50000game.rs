@@ -7,6 +7,7 @@ fn main() {
     let rule = RuleConfig {
         eight_cut:true,
         eleven_back:true,
+        spade_3_beat:true,
     };
 
     let opponent =

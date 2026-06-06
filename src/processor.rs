@@ -106,6 +106,14 @@ impl Processor {
             obs.push(if ((my_hand >> card) & 1) == 1 {1.0} else {0.0});
         }
 
+        //各スートの枚数[4]
+        let mut temp_bits = my_hand;
+        for _ in 0..4 {
+            let suit_count = (temp_bits & 0x1FFF).count_ones() as f32;//１つのsuitのビット
+            obs.push(suit_count/13.0);
+            temp_bits >>= 13;
+        }
+
         //使用されたカード[54]
         let mut used_card = (1u64 << 54) - 1;
 
