@@ -239,7 +239,7 @@ let advantage_centered = a.broadcast_sub(&a_mean)?.broadcast_mul(mask)?;
 let q = advantage_centered.broadcast_add(&v)?;
 
 ```
-### ✨ この実装がもたらすメリット
+
  * **不正なQ値の排除**: マスクされた（打てない）行動のQ値が正確に補正され、エージェントが「出せないカードを出そうとする無駄な探索」を劇的に減らします。
  * **純粋なRust演算**: PyTorch 等の外部ライブラリを一切呼ばず、Candle のネイティブなテンソル演算だけで完結しているため、GPU/CPUを問わず最高のパフォーマンスを発揮します。
 
