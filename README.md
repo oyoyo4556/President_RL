@@ -274,12 +274,18 @@ let q = advantage_centered.broadcast_add(&v)?;
 
 >図:8切り/Jバック/♠3返しあり
 
-
-Jバックで手番が回ってきたときに♠3温存
-
 <img src="pngfolder/spade3.png" width="400">
 
 >図:♠3を温存して3ペアを選んでいる
+
+Jバックで手番が回ってきたときに♠3温存
+
+<img src="pngfolder/5飛び_1.png" width="400"> <img src="pngfolder/5飛び_2.png" width="400">
+
+>図:5飛びで相手をスキップできるのを理解している
+
+
+
 
 ## Todo
 
