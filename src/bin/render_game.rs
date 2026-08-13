@@ -21,7 +21,7 @@ fn main() {
     // 1. エージェントと対戦相手（Opponent）の初期化
     let agent_id = TRAIN_AGENT_ID; 
     let mut agent = DQNAgent::new(100,1);
-    agent.load("checkpoints/dqn_v1.1.0_8J3_ep100000.safetensors").expect("Failed to load model.check the path!");
+    agent.load("checkpoints/dqn_v1.2.0_8J35_ep100000.safetensors").expect("Failed to load model.check the path!");
     agent.epsilon = 0.0;
     
     let mut opp = DQNAgent::new(100,1);
@@ -33,6 +33,7 @@ fn main() {
         eight_cut:true,
         eleven_back:true,
         spade_3_beat:true,
+        skip_five:true,
     };
     let mut env = DaifugoEnv::new(agent_id, opponent, rule);
     

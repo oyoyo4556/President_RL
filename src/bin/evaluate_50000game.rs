@@ -8,6 +8,7 @@ fn main() {
         eight_cut:true,
         eleven_back:true,
         spade_3_beat:true,
+        skip_five:true,
     };
 
     let opponent =

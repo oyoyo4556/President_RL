@@ -308,55 +308,55 @@ impl DaifugoEnv {
         return(self.get_raw_state(),0.0,false);
     }
 
-pub fn apply_action(&mut self, player: usize, action: u16) {
-    // pass
-    if action == PASS_ACTION_ID as u16 {
-        self.state.passed_players |= 1 << player; 
-        self.state.action_log[player] = PASS_ACTION_ID as u16;
-        return;
-    }
+    pub fn apply_action(&mut self, player: usize, action: u16) {
+        // pass
+        if action == PASS_ACTION_ID as u16 {
+            self.state.passed_players |= 1 << player; 
+            self.state.action_log[player] = PASS_ACTION_ID as u16;
+            return;
+        }
 
-    let info = &self.action_manager.infos[action as usize];
-    let mut hand = self.state.hands[player];
+        let info = &self.action_manager.infos[action as usize];
+        let mut hand = self.state.hands[player];
 
-    // 💡 mut を使わず、if-else の結果を直接代入する（上書きを発生させない）
-    let required_joker_count = if action == JOKER_SINGLE_ACTION_ID as u16 {
-        1
-    } else if action == JOKER_PAIR_ACTION_ID as u16 {
-        2
-    } else {
-        // 通常カードのアクションの場合、足りない枚数分だけJokerが必要
-        let owned = hand & info.required_mask;
-        hand &= !owned; // 通常カード（リアルに持っているカード）を消費
+        // mut を使わず、if-else の結果を直接代入する（上書きを発生させない）
+        let required_joker_count = if action == JOKER_SINGLE_ACTION_ID as u16 {
+            1
+        } else if action == JOKER_PAIR_ACTION_ID as u16 {
+            2
+        } else {
+            // 通常カードのアクションの場合、足りない枚数分だけJokerが必要
+            let owned = hand & info.required_mask;
+            hand &= !owned; // 通常カード（リアルに持っているカード）を消費
         
-        (info.required_mask & !owned).count_ones() // 足りないカード枚数
-    };
+            (info.required_mask & !owned).count_ones() // 足りないカード枚数
+        };
 
-    // 2. Jokerを指定枚数分、手札から消費する
-    if required_joker_count > 0 {
-        let mut removed = 0;
+        // 2. Jokerを指定枚数分、手札から消費する
+        if required_joker_count > 0 {
+            let mut removed = 0;
         
-        // 52番目のJokerを持っていたら消費
-        if ((hand >> 52) & 1) == 1 && removed < required_joker_count {
-            hand &= !(1u64 << 52);
-            removed += 1;
-        }
-        // 53番目のJokerを持っていたら消費
-        if ((hand >> 53) & 1) == 1 && removed < required_joker_count {
-            hand &= !(1u64 << 53);
-            removed += 1;
+            // 52番目のJokerを持っていたら消費
+            if ((hand >> 52) & 1) == 1 && removed < required_joker_count {
+                hand &= !(1u64 << 52);
+                removed += 1;
+            }
+            // 53番目のJokerを持っていたら消費
+            if ((hand >> 53) & 1) == 1 && removed < required_joker_count {
+                hand &= !(1u64 << 53);
+                removed += 1;
+            }
+
+            if removed < required_joker_count {
+                panic!("not enough jokers");
+            }
         }
 
-        if removed < required_joker_count {
-            panic!("not enough jokers");
-        }
+        // 3. 状態の更新
+        self.state.hands[player] = hand;
+        self.state.action_log[player] = action;
+
     }
-
-    // 3. 状態の更新
-    self.state.hands[player] = hand;
-    self.state.action_log[player] = action;
-
-}
 
     fn update_field(&mut self,action:u16,effects:&HandEffects) {
 
@@ -473,6 +473,13 @@ pub fn apply_action(&mut self, player: usize, action: u16) {
         }
 
         self.advance_player();
+
+        if effects.skip_five_count > 0 {
+            for _ in 0..effects.skip_five_count {
+                self.state.passed_players |= 1 << self.state.current_player;
+                self.advance_player();
+            }
+        }
     }
 
     fn update_legal_actions(&mut self) {

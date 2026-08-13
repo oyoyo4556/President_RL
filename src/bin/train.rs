@@ -22,7 +22,7 @@ fn main(){
     let tau = 0.005;
     let save_interval = 10000;
     let num_episodes = 100_000;
-    let agent_name = "dqn_v1.1.0_8J3".to_string();
+    let agent_name = "dqn_v1.2.0_8J35".to_string();
 
     let mut agent = DQNAgent::new(100_000,3);
     let opp_agent = RandomAgent::new();
@@ -32,6 +32,7 @@ fn main(){
         eight_cut:true,
         eleven_back:true,
         spade_3_beat:true,
+        skip_five:true,
     };
     let opponent = Opponent::Random(opp_agent);
     let mut env = DaifugoEnv::new(0,opponent,rule);
@@ -53,7 +54,7 @@ fn main(){
     println!("Starting training for {} episodes",num_episodes);
     println!("Save_Interval:every {} episodes",save_interval);
     println!("Agent Name:{}",&trainer.agent_name);
-    println!("Environment: DaifugoEnv with RuleConfig: eight_cut={}, eleven_back={}",rule.eight_cut,rule.eleven_back);
+    println!("Environment: DaifugoEnv with RuleConfig: eight_cut={}, eleven_back={}, skip_five={}",rule.eight_cut,rule.eleven_back,rule.skip_five);
     println!("Input State Dimension: {}",INPUT_STATE_DIM);
     println!("=========================================================");
 

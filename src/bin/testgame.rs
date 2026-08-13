@@ -94,6 +94,7 @@ fn main() {
         eight_cut:true,
         eleven_back:true,
         spade_3_beat:true,
+        skip_five:true,
     };
 
     let mut env =
@@ -141,7 +142,7 @@ fn main() {
             state.current_field_action
             );
 
-            println!("alive players: {:?}",state.alive_players);
+            println!("alive players: {:?}",state.alive_players.count_ones() as f32);
 
             println!("action_log:{:?}",state.action_log);
 
