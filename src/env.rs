@@ -390,10 +390,7 @@ impl DaifugoEnv {
             };
 
             if pass_count >= required_passes {
-                self.state.current_field_action = None;
-                self.state.field_owner = None;
-                self.state.passed_players = 0;
-                self.state.is_revolution = self.state.is_parmanent_revolution;//場が流れたらJバックを戻す
+                self.clear_field();
             }
             return;
         }
@@ -420,13 +417,23 @@ impl DaifugoEnv {
         }
         //8切りの処理
         if effects.eight_cut {
-            self.state.current_field_action = None;
-            self.state.field_owner = None;
-            self.state.passed_players = 0;
-            self.state.is_revolution = self.state.is_parmanent_revolution;//場が流れたらJバックを戻す
+            self.clear_field();
+            return;
+        }
+        //5飛びの処理
+        let alive_count = self.state.alive_players.count_ones() as usize;
+        if effects.skip_five_count >= (alive_count - 1) {
+            self.clear_field();
             return;
         }
 
+    }
+
+    fn clear_field(&mut self) {
+        self.state.current_field_action = None;
+        self.state.field_owner = None;
+        self.state.passed_players = 0;
+        self.state.is_revolution = self.state.is_parmanent_revolution;//場が流れたらJバックを戻す
     }
 
     fn update_finish(&mut self,player:usize) {
